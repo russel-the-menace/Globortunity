@@ -1,0 +1,31 @@
+{
+  "name": "globortunity",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A policy-aware remote job collection and search platform.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build -w @globortunity/domain && npm run build -w @globortunity/database && npm run build -w @globortunity/api && npm run build -w @globortunity/worker && npm run build -w @globortunity/web",
+    "dev": "npm run build -w @globortunity/domain && npm run build -w @globortunity/database && concurrently -n api,worker,web -c blue,magenta,green \"npm run dev -w @globortunity/api\" \"npm run dev -w @globortunity/worker\" \"npm run dev -w @globortunity/web\"",
+    "db:migrate": "npm run migrate -w @globortunity/database",
+    "db:seed": "npm run seed -w @globortunity/database",
+    "pretest": "npm run build -w @globortunity/domain && npm run build -w @globortunity/database",
+    "test": "npm run test -w @globortunity/domain && npm run test -w @globortunity/database && npm run test -w @globortunity/api && npm run test -w @globortunity/worker && npm run test -w @globortunity/web",
+    "test:integration": "npm run test:integration -w @globortunity/database",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.30",
+    "concurrently": "^9.2.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
+  }
+}
