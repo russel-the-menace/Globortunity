@@ -2,8 +2,14 @@
 set -eu
 
 releases_root=/opt/globortunity/releases
-current_release=$(readlink -f /opt/globortunity/current 2>/dev/null || true)
-previous_release=$(readlink -f /opt/globortunity/previous 2>/dev/null || true)
+current_release=
+previous_release=
+if [ -L /opt/globortunity/current ]; then
+  current_release=$(readlink -f /opt/globortunity/current)
+fi
+if [ -L /opt/globortunity/previous ]; then
+  previous_release=$(readlink -f /opt/globortunity/previous)
+fi
 
 find "$releases_root" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' \
   | while IFS= read -r tag; do

@@ -69,7 +69,10 @@ activate() {
   done
 }
 
-current_before=$(readlink -f /opt/globortunity/current 2>/dev/null || true)
+current_before=
+if [ -L /opt/globortunity/current ]; then
+  current_before=$(readlink -f /opt/globortunity/current)
+fi
 if activate \
   && { [ -z "$current_before" ] || [ "$current_before" = "$release_root" ] || ln -sfn "$current_before" /opt/globortunity/previous; } \
   && ln -sfn "$release_root" /opt/globortunity/current \
