@@ -19,15 +19,32 @@ test -f "$image_archive"
 release_root=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
 env_file=${GLOBORTUNITY_ENV_FILE:-/opt/globortunity/shared/.env}
 test -f "$env_file"
+set -a
+# The server-owned file is a shell-compatible dotenv file with restricted permissions.
+. "$env_file"
+set +a
+APP_HOST=${APP_HOST:-47.109.60.123}
+APP_PUBLIC_URL=${APP_PUBLIC_URL:-http://${APP_HOST}}
+TLS_ENABLED=${TLS_ENABLED:-false}
 gzip -dc "$image_archive" | docker load
 
 compose() {
-  docker compose \
-    --project-name globortunity \
-    --env-file "$env_file" \
-    --file "$release_root/infra/compose.yaml" \
-    --file "$release_root/infra/compose.prod.yaml" \
-    "$@"
+  if [ "$TLS_ENABLED" = "true" ]; then
+    docker compose \
+      --project-name globortunity \
+      --env-file "$env_file" \
+      --file "$release_root/infra/compose.yaml" \
+      --file "$release_root/infra/compose.prod.yaml" \
+      --file "$release_root/infra/compose.tls.yaml" \
+      "$@"
+  else
+    docker compose \
+      --project-name globortunity \
+      --env-file "$env_file" \
+      --file "$release_root/infra/compose.yaml" \
+      --file "$release_root/infra/compose.prod.yaml" \
+      "$@"
+  fi
 }
 
 activate() {
@@ -42,15 +59,10 @@ activate() {
   test "$(docker inspect --format '{{.State.Status}}' "$worker_container")" = "running" || return 1
   test "$(docker inspect --format '{{.RestartCount}}' "$worker_container")" -lt 2 || return 1
 
-  set -a
-  # The server-owned file is a shell-compatible dotenv file with restricted permissions.
-  . "$env_file"
-  set +a
-  APP_HOST=${APP_HOST:-globortunity.47.109.60.123.sslip.io}
-
   attempts=0
-  until curl --noproxy '*' --fail --silent --show-error --max-time 10 "https://${APP_HOST}/healthz" >/dev/null \
-    && curl --noproxy '*' --fail --silent --show-error --max-time 10 "https://${APP_HOST}/api/ready" >/dev/null; do
+  public_url=${APP_PUBLIC_URL%/}
+  until curl --noproxy '*' --fail --silent --show-error --max-time 10 "${public_url}/healthz" >/dev/null \
+    && curl --noproxy '*' --fail --silent --show-error --max-time 10 "${public_url}/api/ready" >/dev/null; do
     attempts=$((attempts + 1))
     test "$attempts" -lt 12 || return 1
     sleep 5

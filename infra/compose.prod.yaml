@@ -7,17 +7,10 @@ services:
       traefik.enable: "true"
       traefik.docker.network: coolify
       traefik.http.middlewares.globortunity-gzip.compress: "true"
-      traefik.http.middlewares.globortunity-redirect.redirectscheme.scheme: https
       traefik.http.routers.globortunity-http.entrypoints: http
-      traefik.http.routers.globortunity-http.rule: "Host(`${APP_HOST:-globortunity.47.109.60.123.sslip.io}`)"
-      traefik.http.routers.globortunity-http.middlewares: globortunity-redirect
+      traefik.http.routers.globortunity-http.rule: "Host(`${APP_HOST:-47.109.60.123}`)"
+      traefik.http.routers.globortunity-http.middlewares: globortunity-gzip
       traefik.http.routers.globortunity-http.service: globortunity-web
-      traefik.http.routers.globortunity-https.entrypoints: https
-      traefik.http.routers.globortunity-https.rule: "Host(`${APP_HOST:-globortunity.47.109.60.123.sslip.io}`)"
-      traefik.http.routers.globortunity-https.middlewares: globortunity-gzip
-      traefik.http.routers.globortunity-https.service: globortunity-web
-      traefik.http.routers.globortunity-https.tls: "true"
-      traefik.http.routers.globortunity-https.tls.certresolver: letsencrypt
       traefik.http.services.globortunity-web.loadbalancer.server.port: "8080"
 
 networks:

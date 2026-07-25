@@ -29,13 +29,13 @@ The host's Mihomo proxy currently works, but a separately documented infrastruct
 
 ## Production URL
 
-Until a project domain is supplied, the Compose labels route:
+Until a dedicated registered domain is supplied, the Compose labels route the read-only demo over the server IP:
 
 ```text
-https://globortunity.47.109.60.123.sslip.io
+http://47.109.60.123
 ```
 
-`sslip.io` resolves the embedded IP address without changing DNS. Replace `APP_HOST` with a project-owned domain after its DNS and any mainland-China filing requirements are settled.
+Alibaba's mainland edge rejects the unregistered `sslip.io` hostname, so it cannot complete ACME validation. Do not put credentials or live-source personal data on the temporary HTTP route. After a project-owned subdomain has DNS and any mainland-China filing requirements settled, set `APP_HOST`, `APP_PUBLIC_URL=https://...`, and `TLS_ENABLED=true`; the deployment script will add `compose.tls.yaml` for redirect and certificate issuance.
 
 ## Secret Locations
 
@@ -58,8 +58,10 @@ Required runtime posture:
 
 ```dotenv
 NODE_ENV=production
-APP_HOST=globortunity.47.109.60.123.sslip.io
-CORS_ORIGIN=https://globortunity.47.109.60.123.sslip.io
+APP_HOST=47.109.60.123
+APP_PUBLIC_URL=http://47.109.60.123
+TLS_ENABLED=false
+CORS_ORIGIN=http://47.109.60.123
 CRAWLING_ENABLED=false
 BOSS_SOURCE_ENABLED=false
 BOSS_AUTHORIZED_ACCESS=false
@@ -104,9 +106,9 @@ After deployment:
 
 ```bash
 docker compose -p globortunity -f infra/compose.yaml -f infra/compose.prod.yaml ps
-curl -fsS https://globortunity.47.109.60.123.sslip.io/healthz
-curl -fsS https://globortunity.47.109.60.123.sslip.io/api/ready
-curl -fsS https://globortunity.47.109.60.123.sslip.io/api/jobs?limit=1
+curl -fsS http://47.109.60.123/healthz
+curl -fsS http://47.109.60.123/api/ready
+curl -fsS 'http://47.109.60.123/api/jobs?limit=1'
 ```
 
 Also confirm the existing application remains healthy and compare `docker stats --no-stream` with its pre-deploy baseline.

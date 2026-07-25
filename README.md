@@ -58,6 +58,8 @@ npm run db:seed       # Idempotently load demo records
 
 Every pull request and push to `main` runs tests and production builds. A verified `main` push builds versioned Linux images in GitHub Actions, transfers the release over a dedicated SSH key, and activates the Compose stack behind the server's existing Traefik proxy. Images are built on GitHub rather than the small production server.
 
+The initial read-only demo is available at `http://47.109.60.123`. A dedicated registered subdomain is required before enabling the included TLS overlay or storing live-source data.
+
 Production keeps PostgreSQL private and caps memory/CPU for every service. Browser automation is excluded from this server because its current 1.6 GiB RAM capacity is insufficient to run Chromium reliably beside Coolify and the existing application.
 
 See [the deployment runbook](docs/deployment.md) for prerequisites, secrets, health checks, and rollback notes.

@@ -1,0 +1,11 @@
+services:
+  web:
+    labels:
+      traefik.http.middlewares.globortunity-redirect.redirectscheme.scheme: https
+      traefik.http.routers.globortunity-http.middlewares: globortunity-redirect
+      traefik.http.routers.globortunity-https.entrypoints: https
+      traefik.http.routers.globortunity-https.rule: "Host(`${APP_HOST:?APP_HOST is required for TLS}`)"
+      traefik.http.routers.globortunity-https.middlewares: globortunity-gzip
+      traefik.http.routers.globortunity-https.service: globortunity-web
+      traefik.http.routers.globortunity-https.tls: "true"
+      traefik.http.routers.globortunity-https.tls.certresolver: letsencrypt
